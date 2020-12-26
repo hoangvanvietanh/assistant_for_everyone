@@ -25,18 +25,15 @@
         <div class="indeterminate"></div>
       </div>
       <div class="container-fluid">
-          <div class="row" style="min-height: 90vh;padding: 15px;">
-              <div class="col-sm-6" style="background-color: antiquewhite;">
-                <div class="row">
-                  <div class="col-sm-4">
-                    <button style="width: 100%;" type="button" id="btnShowWebcam" onclick="showWebcam()" class="btn btn-primary">Hiển thị webcam</button>
+          <div class="row" style="padding: 15px;">
+              <div class="col-sm-6" style="background-color: antiquewhite;height: 90vh;">
+                <div class="row" style="margin-top: 15px;">
+                  <div class="col-sm-6">
+                    <button style="width: 100%;font-size: 12px;" type="button" id="btnShowWebcam" onclick="showWebcam()" class="btn btn-primary">Hiển thị webcam</button>
                   </div>
-                  <div class="col-sm-4">
-                    <button style="width: 100%;" type="button" onclick="setFirstPosition()" class="btn btn-primary">Lấy vị trí chuẩn</button>
+                  <div class="col-sm-6">
+                    <button style="width: 100%;font-size: 12px;" type="button" onclick="setFirstPosition()" class="btn btn-primary">Thiết lập tư thế chuẩn</button>
                   </div>
-                  <div class="col-sm-4">
-                    <button style="width: 100%;" type="button" onclick="" class="btn btn-primary">Lấy vị trí chuẩn</button>
-                  </div>    
                 </div>
 
                 <div class="row">
@@ -47,32 +44,29 @@
                   
                 </div>
               </div>
-              <div class="col-sm-6" style="background-color: azure;">
+              <div class="col-sm-6" style="height: 90vh;;background-color: azure;overflow-y: scroll;">
                 <!---Của mày ở đây nè Việt Anh-->
                 <div class="col-sm-12 text-center">
                   <h4>Bảng điều khiển</h4>
                 </div>
                 <div class="row">
-                  <canvas id="chLine"></canvas>
+                  <canvas id="chLine" height="80px"></canvas>
                 </div>
                 <!--Kết thúc ở đây-->
 
 
                 <div class="row">
-                  <div class="col-sm-6">
-                    <label for="countDownId">Thời gian còn lại:</label>
-                    <div id="countDownId"></div>
-                    
-                   
+                  <div class="col-sm-4 text-center">
+                    <label for="timeWrongPositionId">Thông báo tư thế ngồi sai:</label>
+                    <div id="timeWrongPositionId" align="center" ></div>
                   </div>
-                  <div class="col-sm-6">
-                    <label for="shitDownId">Thời gian ngồi:</label>
-
-                    <div id="shitDownId"></div>
-                    
+                  <div class="col-sm-4 text-center">
+                    <label for="breakTimeId">Thông báo nghỉ ngơi:</label>
+                    <div id="breakTimeId" align="center" ></div>
                   </div>
-                  <div class="col-sm-8">
-                    <strong><p id="time"></p></strong>
+                  <div class="col-sm-4 text-center">
+                    <label for="timeSpentSittingId">Tổng thời gian ngồi:</label>
+                    <div id="timeSpentSittingId" align="center" ></div>
                   </div>
                 </div>
 
@@ -159,17 +153,19 @@
       }
     </script>
     <script>
-        let countTime = 0
-        let countTimeNotification = 0
+        let milisec = miliseconds(0, 2, 0);
+        let valueTimeAllowForWrongPosition = 200
+        let valueTimeBreakTime = 200
+
+        let countTimeToBreakTime = valueTimeBreakTime
+        let countTimeWrongPosition = valueTimeAllowForWrongPosition
+        let countTimeSitdown = 0
+
+        let positionMove = 0//lấy vị trí khi gương mặt di chuyển
+        let positionFirst = 0 //tư thế ngồi đúng
         let forwardTimes = []
-        let positionFirst = 0
-        let positionMove = 0
         let withBoxes = true
         let isShowWebcam = false
-        var milisec;
-        milisec = miliseconds(0, 2, 0);
-        console.log('milisec: ' + milisec)
-        var countTimeDown = milisec;
     
         function showWebcam() {
           isShowWebcam = !isShowWebcam
@@ -216,7 +212,7 @@
           const ts = Date.now()
     
           const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks()
-    
+          
           updateTimeStats(Date.now() - ts)
           //cao giảm, dưới tăng max 370
           //trái giảm, phải tăng max 450 -20
@@ -228,32 +224,37 @@
             let x = result.detection.box.x;
             let y = result.detection.box.y;
             positionMove = y;
-            countTime++
-            countTimeDown--
-            if(countTime == 500) {
-                notifyMe('Nghỉ ngơi tí thôi')
-            }
-            if(countTimeDown == 0) {
+
+            countTimeToBreakTime--
+            countTimeSitdown++
+          
+            renderClockBreakTime()
+            if(countTimeToBreakTime <= 2) {
               notifyMe('Nghỉ ngơi tí thôi')
+              countTimeToBreakTime = valueTimeBreakTime;
             }
             if(positionFirst !== 0) {
               if(y > positionFirst )
               {
-                if(countTimeNotification >= 50) {
+                if(countTimeWrongPosition <= 2) {
                   notifyMe('Ngồi thẳng dậy nào, nhanh nhanh...')
+                  countTimeWrongPosition = valueTimeAllowForWrongPosition;
                 }
-                countTimeNotification++
+                countTimeWrongPosition--
+                renderClockTimeWrongPosition()
               } 
               if(y < positionFirst) {
-                countTimeNotification = 0;
+                countTimeWrongPosition = valueTimeAllowForWrongPosition;
               }
             }
-            
-            render()
+
+            renderClockSpentSitting()
             if (withBoxes) {
               faceapi.draw.drawDetections(canvas, resizedResult)
             }
             faceapi.draw.drawFaceLandmarks(canvas, resizedResult)
+          } else {
+            onTimesUp()
           }
     
           setTimeout(() => onPlay())
@@ -280,8 +281,6 @@
           run()
         })
         function notifyMe(message) {
-          countTimeNotification = 0;
-          countTime = 0;
       // Let's check if the browser supports notifications
       if (!("Notification" in window)) {
         alert("This browser does not support desktop notification");
@@ -307,39 +306,46 @@
       // want to be respectful there is no need to bother them any more.
     }
     
-    function render() {
-        time.innerHTML = countTime/1000; 
-        document.getElementById("baseTimeLabel").innerHTML = formatTime(
-          countTimeDown
+    function renderClockSpentSitting() {
+        document.getElementById("timeSpendSittingLabel").innerHTML = formatTime(
+          countTimeSitdown
         );
-        setCircleDasharray();
-        setRemainingPathColor(countTimeDown);
-    
-        if (countTimeDown === 0) {
-          onTimesUp();
-        }
-
-        document.getElementById("baseTimeLabel1").innerHTML = formatTime(
-          countTime/1000
-        );
-        setCircleDasharray();
-        setRemainingPathColor(countTime/1000);
-    
-        if (countTime/1000 === 0) {
-          onTimesUp();
-        }
-        console.log('----------------------');
+        setCircleDasharray(countTimeSitdown,0, 'baseTimerSpendSittingId');
+        setRemainingPathColor(countTimeSitdown, 'baseTimerSpendSittingId');
     }
-    
-    displayTimeShiwDown("shitDownId", "baseTimerPathRemaining" ,"baseTimeLabel1", countTime);
-    displayTimeShiwDown("countDownId", "baseTimerPathRemaining", "baseTimeLabel", countTimeDown);
 
+    function renderClockBreakTime() {
+        document.getElementById("breakTimeLabel").innerHTML = formatTime(
+          countTimeToBreakTime
+        );
+        setCircleDasharray(countTimeToBreakTime,valueTimeBreakTime, 'baseTimerSpendSittingId');
+        setRemainingPathColor(countTimeToBreakTime, 'baseTimerSpendSittingId');
     
+        if (countTimeToBreakTime <= 0) {
+          onTimesUp();
+        }
+    }
+
+    function renderClockTimeWrongPosition() {
+      document.getElementById("timeWrongPositionLabel").innerHTML = formatTime(
+          countTimeWrongPosition
+        );
+        setCircleDasharray(countTimeWrongPosition,valueTimeAllowForWrongPosition, 'baseTimerWrongPositionId');
+        setRemainingPathColor(countTimeWrongPosition, 'baseTimerWrongPositionId');
+    
+        if (countTimeWrongPosition <= 0) {
+          onTimesUp();
+        }
+    }
+
     function miliseconds(hrs, min, sec)
     {
         return(((hrs * 60 * 60) + (min * 60) + sec));
     }
-    //startTimer(milisec/1000);
+    function onTimesUp() {
+      countTimeToBreakTime = valueTimeBreakTime
+      countTimeWrongPosition = valueTimeAllowForWrongPosition
+    }
     </script>
 </body>
 </html>

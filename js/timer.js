@@ -22,9 +22,11 @@ let timeLeft = TIME_LIMIT;
 let timerInterval = null;
 let remainingPathColor = COLOR_CODES.info.color;
 
-
-function displayTimeShiwDown(shitDownId, baseTimerPathRemaining, baseTimeLabel,timeLeft) {
-    document.getElementById(shitDownId).innerHTML = `
+displayTimeShiwDown("timeSpentSittingId", "baseTimerSpendSittingId" ,"timeSpendSittingLabel", 0);
+displayTimeShiwDown("timeWrongPositionId", "baseTimerWrongPositionId", "timeWrongPositionLabel", 0);
+displayTimeShiwDown("breakTimeId", "baseTimerBreakTimeId", "breakTimeLabel", 0);
+function displayTimeShiwDown(timeSpentSittingId, baseTimerPathRemaining, baseTimeLabel,timeLeft) {
+    document.getElementById(timeSpentSittingId).innerHTML = `
     <div class="base-timer">
     <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
         <g class="base-timer__circle">
@@ -49,66 +51,63 @@ function displayTimeShiwDown(shitDownId, baseTimerPathRemaining, baseTimeLabel,t
     `;
 }
 
-
-
-// startTimer();
-
-function onTimesUp() {
-  clearInterval(timerInterval);
-}
-
-function startTimer(time) {
-  timerInterval = setInterval(() => {
-    console.log('timeLeft: '+ formatTime(time))
-    document.getElementById("base-timer-label").innerHTML = formatTime(time);
-    setCircleDasharray();
-    setRemainingPathColor(time);
-    if (time === 0) {
-      onTimesUp();
-    }
-  }, 1000);
-}
-
 function formatTime(time) {
-  const minutes = Math.floor(time / 60);
-  let seconds = time % 60;
+  let seconds = Math.floor(time/10);
+  let minutes = Math.floor(seconds / 60);
+  let hours = Math.floor(minutes / 60);
+  
+  console.log('seconds',seconds)
 
+  
+  if(seconds >= 60) {
+    seconds = seconds - (minutes * 60)
+  }
   if (seconds < 10) {
     seconds = `0${seconds}`;
   }
 
-  return `${minutes}:${seconds}`;
+  if(minutes >= 60) {
+    minutes = minutes - (hours * 60)
+  }
+  if (minutes < 10) {
+    minutes = `0${minutes}`;
+  }
+
+  if (hours < 10) {
+    hours = `0${hours}`;
+  }
+  return `${hours}:${minutes}:${seconds}`;
 }
 
-function setRemainingPathColor(timeLeft) {
+function setRemainingPathColor(timeLeft, id) {
   const { alert, warning, info } = COLOR_CODES;
   if (timeLeft <= alert.threshold) {
     document
-      .getElementById("baseTimerPathRemaining")
+      .getElementById(id)
       .classList.remove(warning.color);
     document
-      .getElementById("baseTimerPathRemaining")
+      .getElementById(id)
       .classList.add(alert.color);
   } else if (timeLeft <= warning.threshold) {
     document
-      .getElementById("baseTimerPathRemaining")
+      .getElementById(id)
       .classList.remove(info.color);
     document
-      .getElementById("baseTimerPathRemaining")
+      .getElementById(id)
       .classList.add(warning.color);
   }
 }
 
-function calculateTimeFraction() {
-  const rawTimeFraction = timeLeft / TIME_LIMIT;
-  return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
+function calculateTimeFraction(timeLeft,time) {
+  const rawTimeFraction = timeLeft / time;
+  return rawTimeFraction - (1 / time) * (1 - rawTimeFraction);
 }
 
-function setCircleDasharray() {
+function setCircleDasharray(timeLeft,time, id) {
   const circleDasharray = `${(
-    calculateTimeFraction() * FULL_DASH_ARRAY
+    calculateTimeFraction(timeLeft,time) * FULL_DASH_ARRAY
   ).toFixed(0)} 283`;
   document
-    .getElementById("baseTimerPathRemaining")
+    .getElementById(id)
     .setAttribute("stroke-dasharray", circleDasharray);
 }
