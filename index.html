@@ -1,139 +1,233 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <script src="./dist/face-api.js"></script>
-  <script src="./js/commons.js"></script>
-  <script src="./js/faceDetectionControls.js"></script>
-  <link rel="stylesheet" href="./css/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/css/materialize.css">
-  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.100.2/js/materialize.min.js"></script>
+<!doctype html>
+<html lang="en">
+  <head>
+    <title>Title</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="./css/bootstrap.min.css">
+    <script src="./dist/face-api.js"></script>
+    <script src="./js/commons.js"></script>
+    <script src="./js/faceDetectionControls.js"></script>
+    <link rel="stylesheet" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/materialize.css">
+    <script type="text/javascript" src="./js/jquery-2.1.1.min.js"></script>
+    <script src="./js/materialize.min.js"></script>  
 </head>
-<body>
-  <div id="navbar"></div>
-  <div class="center-content page-container">
+  <body>
     <div class="progress" id="loader">
-      <div class="indeterminate"></div>
-    </div>
-    <div style="position: relative;" class="margin">
-      <video onloadedmetadata="onPlay(this)"  id="inputVideo" autoplay muted playsinline></video>
-      <canvas id="overlay" />
-    </div>
-    </div>
-    <div id="time"></div>
-  </div>
-  </body>
+        <div class="indeterminate"></div>
+      </div>
+      <div class="container-fluid">
+          <div class="row" style="min-height: 90vh;padding: 15px;">
+              <div class="col-sm-6" style="background-color: antiquewhite;">
+                <div class="row">
+                  <div class="col-sm-4">
+                    <button style="width: 100%;" type="button" id="btnShowWebcam" onclick="showWebcam()" class="btn btn-primary">Hiển thị webcam</button>
+                  </div>
+                  <div class="col-sm-4">
+                    <button style="width: 100%;" type="button" onclick="setFirstPosition()" class="btn btn-primary">Lấy vị trí chuẩn</button>
+                  </div>
+                  <div class="col-sm-4">
+                    <button style="width: 100%;" type="button" onclick="" class="btn btn-primary">Lấy vị trí chuẩn</button>
+                  </div>    
+                </div>
 
-  <script>
-    let countTime = 0
-    let countTimeNotification = 0
-    let forwardTimes = []
-    let withBoxes = true
+                <div class="row">
+                  <div class="col-sm-12">
+                    <video onloadedmetadata="onPlay(this)" width="0px" id="inputVideo" autoplay muted playsinline></video>
+                    <canvas id="overlay"/>
+                  </div>
+                  
+                </div>
+              </div>
+              <div class="col-sm-6" style="background-color: azure;">
+                <div class="col-sm-12 text-center">
+                  <h4>Bảng điều khiển</h4>
+                </div>
+                <div class="row">
+                  
+                </div>
 
-    function onChangeHideBoundingBoxes(e) {
-      withBoxes = !$(e.target).prop('checked')
-    }
-
-    function updateTimeStats(timeInMs) {
-      forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
-      const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
-      $('#time').val(`${Math.round(avgTimeInMs)} ms`)
-      $('#fps').val(`${faceapi.utils.round(1000 / avgTimeInMs)}`)
-    }
-
-    async function onPlay() {
-      const videoEl = $('#inputVideo').get(0)
-
-      if(videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
-        return setTimeout(() => onPlay())
+                <div class="row">
+                  <div class="col-sm-4">
+                    Thời gian ngồi
+                  </div>
+                  <div class="col-sm-8">
+                    <strong><p id="time"></p></strong>
+                  </div>
+                </div>
 
 
-      const options = getFaceDetectorOptions()
+                <div class="row">
+                  
+                </div>
+                
+                <div class="row">
+                  <div class="col-sm-4">
+                    Thời gian nghỉ ngơi
+                  </div>
+                  <div class="col-sm-8">
+                    <input type="number"
+                      class="form-control" name="" id="" aria-describedby="helpId" placeholder="">
+                  </div>
+                </div>
 
-      const ts = Date.now()
 
-      const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks()
+            </div>
+          </div>
+      </div>
 
-      updateTimeStats(Date.now() - ts)
-      //cao giảm, dưới tăng max 370
-      //trái giảm, phải tăng max 450 -20
-      if (result) {
-        const canvas = $('#overlay').get(0)
-        const dims = faceapi.matchDimensions(canvas, videoEl, true)
-        const resizedResult = faceapi.resizeResults(result, dims)
-//console.log(result.detection.box.x +':', result.detection.box.y)
-        let x = result.detection.box.x;
-        let y = result.detection.box.y;
-        countTime++
-        if(y > 250 )
-        {
-          if(countTimeNotification >= 50) {
-            notifyMe()
+    <!-- Optional JavaScript -->
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
+    <script src="./js/popper.min.js"></script>
+    <script src="./js/bootstrap.min.js"></script>
+    <script>
+        let countTime = 0
+        let countTimeNotification = 0
+        let forwardTimes = []
+        let positionFirst = 0
+        let positionMove = 0
+        let withBoxes = true
+        let isShowWebcam = false
+    
+        function showWebcam() {
+          isShowWebcam = !isShowWebcam
+          if(isShowWebcam) {
+            document.getElementById('btnShowWebcam').innerHTML = 'Ẩn Webcam'
+            document.getElementById('inputVideo').style.width = '610px'
+            document.getElementById('inputVideo').style.height = '480px'
+          } else {
+            document.getElementById('btnShowWebcam').innerHTML = 'Hiển thị Webcam'
+            document.getElementById('inputVideo').style.width = '0px'
+            document.getElementById('inputVideo').style.height = '0px'
           }
-          countTimeNotification++
-        } 
-        if(y < 250) {
+          
+        }
+
+        function getPositionFirst() {
+          return positionFirst + 20
+        }
+        
+        function setFirstPosition() {
+          positionFirst = positionMove
+        }
+
+        function onChangeHideBoundingBoxes(e) {
+          withBoxes = !$(e.target).prop('checked')
+        }
+    
+        function updateTimeStats(timeInMs) {
+          forwardTimes = [timeInMs].concat(forwardTimes).slice(0, 30)
+          const avgTimeInMs = forwardTimes.reduce((total, t) => total + t) / forwardTimes.length
+          $('#time').val(`${Math.round(avgTimeInMs)} ms`)
+          $('#fps').val(`${faceapi.utils.round(1000 / avgTimeInMs)}`)
+        }
+    
+        async function onPlay() {
+          const videoEl = $('#inputVideo').get(0)
+    
+          if(videoEl.paused || videoEl.ended || !isFaceDetectionModelLoaded())
+            return setTimeout(() => onPlay())
+    
+    
+          const options = getFaceDetectorOptions()
+    
+          const ts = Date.now()
+    
+          const result = await faceapi.detectSingleFace(videoEl, options).withFaceLandmarks()
+    
+          updateTimeStats(Date.now() - ts)
+          //cao giảm, dưới tăng max 370
+          //trái giảm, phải tăng max 450 -20
+          if (result) {
+            const canvas = $('#overlay').get(0)
+            const dims = faceapi.matchDimensions(canvas, videoEl, true)
+            const resizedResult = faceapi.resizeResults(result, dims)
+    //console.log(result.detection.box.x +':', result.detection.box.y)
+            let x = result.detection.box.x;
+            let y = result.detection.box.y;
+            positionMove = y;
+            countTime++
+            if(countTime == 500) {
+                notifyMe('Nghỉ ngơi tí thôi')
+            }
+            if(positionFirst !== 0) {
+              if(y > positionFirst )
+              {
+                if(countTimeNotification >= 50) {
+                  notifyMe('Ngồi thẳng dậy nào, nhanh nhanh...')
+                }
+                countTimeNotification++
+              } 
+              if(y < positionFirst) {
+                countTimeNotification = 0;
+              }
+            }
+            
+            render()
+            if (withBoxes) {
+              faceapi.draw.drawDetections(canvas, resizedResult)
+            }
+            faceapi.draw.drawFaceLandmarks(canvas, resizedResult)
+          }
+    
+          setTimeout(() => onPlay())
+        }
+    
+        async function run() {
+          // load face detection and face landmark models
+          await changeFaceDetector(TINY_FACE_DETECTOR)
+          await faceapi.loadFaceLandmarkModel('/')
+          changeInputSize(224)
+    
+          // try to access users webcam and stream the images
+          // to the video element
+          const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
+          const videoEl = $('#inputVideo').get(0)
+          videoEl.srcObject = stream
+        }
+    
+        function updateResults() {}
+    
+        $(document).ready(function() {
+          //renderNavBar('#navbar', 'webcam_face_landmark_detection')
+          initFaceDetectionControls()
+          run()
+        })
+        function notifyMe(message) {
           countTimeNotification = 0;
-        }
-        render()
-        if (withBoxes) {
-          faceapi.draw.drawDetections(canvas, resizedResult)
-        }
-        faceapi.draw.drawFaceLandmarks(canvas, resizedResult)
+          countTime = 0;
+      // Let's check if the browser supports notifications
+      if (!("Notification" in window)) {
+        alert("This browser does not support desktop notification");
       }
-
-      setTimeout(() => onPlay())
-    }
-
-    async function run() {
-      // load face detection and face landmark models
-      await changeFaceDetector(TINY_FACE_DETECTOR)
-      await faceapi.loadFaceLandmarkModel('/')
-      changeInputSize(224)
-
-      // try to access users webcam and stream the images
-      // to the video element
-      const stream = await navigator.mediaDevices.getUserMedia({ video: {} })
-      const videoEl = $('#inputVideo').get(0)
-      videoEl.srcObject = stream
-    }
-
-    function updateResults() {}
-
-    $(document).ready(function() {
-      //renderNavBar('#navbar', 'webcam_face_landmark_detection')
-      initFaceDetectionControls()
-      run()
-    })
-    function notifyMe() {
-      countTimeNotification = 0;
-  // Let's check if the browser supports notifications
-  if (!("Notification" in window)) {
-    alert("This browser does not support desktop notification");
-  }
-
-  // Let's check whether notification permissions have already been granted
-  else if (Notification.permission === "granted") {
-    // If it's okay let's create a notification
-    var notification = new Notification("Ngồi thẳng lên nào, nhanh nhanh....");
-  }
-
-  // Otherwise, we need to ask the user for permission
-  else if (Notification.permission !== "denied") {
-    Notification.requestPermission().then(function (permission) {
-      // If the user accepts, let's create a notification
-      if (permission === "granted") {
-        var notification = new Notification("Ngồi thẳng lên nào, nhanh nhanh....");
+    
+      // Let's check whether notification permissions have already been granted
+      else if (Notification.permission === "granted") {
+        // If it's okay let's create a notification
+        var notification = new Notification(message);
       }
-    });
-  }
-
-  // At last, if the user has denied notifications, and you
-  // want to be respectful there is no need to bother them any more.
-}
-function render() {
-    time.innerHTML = countTime/1000; 
-  }
-  </script>
+    
+      // Otherwise, we need to ask the user for permission
+      else if (Notification.permission !== "denied") {
+        Notification.requestPermission().then(function (permission) {
+          // If the user accepts, let's create a notification
+          if (permission === "granted") {
+            var notification = new Notification(message);
+          }
+        });
+      }
+    
+      // At last, if the user has denied notifications, and you
+      // want to be respectful there is no need to bother them any more.
+    }
+    function render() {
+        time.innerHTML = countTime/1000; 
+      }
+      </script>
 </body>
 </html>
