@@ -390,6 +390,7 @@
           renderClockBreakTime();
           if (countTimeToBreakTime <= 2) {
             notifyMe("Nghỉ ngơi tí thôi");
+            new Audio('/mp3/breaktime.mp3').play();
             countTimeToBreakTime = valueTimeBreakTime;
           }
           if (positionFirst !== 0) {
@@ -403,6 +404,7 @@
               isWrongPosition = true
               if (countTimeWrongPosition <= 2) {
                 notifyMe("Ngồi thẳng dậy nào, nhanh nhanh...");
+                new Audio('/mp3/wrongposition.mp3').play();
                 countTimeWrongPosition = valueTimeAllowForWrongPosition;
               }
               countTimeWrongPosition--;
