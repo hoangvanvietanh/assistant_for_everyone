@@ -56,9 +56,6 @@ function formatTime(time) {
   let minutes = Math.floor(seconds / 60);
   let hours = Math.floor(minutes / 60);
   
-  console.log('seconds',seconds)
-
-  
   if(seconds >= 60) {
     seconds = seconds - (minutes * 60)
   }
