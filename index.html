@@ -75,15 +75,51 @@
                   
                 </div>
                 
-                <div class="row">
-                  <div class="col-sm-4">
-                    Thời gian nghỉ ngơi
-                  </div>
-                  <div class="col-sm-8">
-                    <input type="number"
-                      class="form-control" name="" id="" aria-describedby="helpId" placeholder="">
-                  </div>
-                </div>
+                        <!-- Start thời gian nghỉ ngơi  -->
+        <div class="row">
+          <div style="text-align: center; font-family: tahoma;" class="col-sm-12">
+            <h5>Setting</h5>
+          </div>
+          <form class="row" onsubmit="return formSubmit()">
+            <div class="col-sm-4">
+              <label for="timeRelax">Thời gian nghỉ: <span id="valueTimeRelax"></span> </label>
+            </div>
+            <div class="col-sm-8">
+              <input type="range" name="timeRelax" id="timeRelax" min="1" max="1000" value="1"
+                onchange="onChangeTimeRelax(this.value)">
+            </div>
+            <div class="col-sm-4">
+              <label for="wrongTime">Thời gian ngồi sai tư thế: <span id="valueWrongTime"></span> </label>
+            </div>
+            <div class="col-sm-8">
+              <input type="range" name="wrongTime" id="wrongTime" min="1" max="1000" value="1"
+                onchange="onChangeWrongTime(this.value)">
+            </div>
+            <div class="col-sm-4">
+              <label for="bonusSecond">Khi cười cộng thêm giây: <span id="valueBonusSecond"></span></label>
+            </div>
+            <div class="col-sm-8">
+              <input type="range" name="bonusSecond" id="bonusSecond" min="1" max="1000" value="1"
+                onchange="onChangeBonusSecond(this.value)">
+            </div>
+            <div class="col-md-12">
+              <label for="mucDo" class="form-label">Mức độ</label>
+              <select id="mucDo" class="form-control" name="mucDo">
+                <option value="1">Thấp</option>
+                <option value="2">Trung bình</option>
+                <option value="3">Quan trọng</option>
+                <option value="4">Nghiêm trọng</option>
+              </select>
+            </div>
+
+
+            <div class="col-12" style="margin-top: 10px;">
+              <button type="submit" class="btn btn-primary">Lưu </button>
+            </div>
+          </form>
+
+        </div>
+        <!-- End thời gian nghỉ ngơi  -->
 
 
             </div>
@@ -97,6 +133,28 @@
     <script src="./js/bootstrap.min.js"></script>
     <script src="./js/timer.js"></script>
     <script>
+        // Start Edit --Thương
+    function onChangeTimeRelax(value) {
+      console.log('value1 :>> ', value);
+      document.getElementById('valueTimeRelax').innerHTML = value + "ph"
+    }
+    function onChangeWrongTime(value) {
+      console.log('value2 :>> ', value);
+      document.getElementById('valueWrongTime').innerHTML = value + "ph"
+
+    }
+    function onChangeBonusSecond(value) {
+      console.log('value3 :>> ', value);
+      document.getElementById('valueBonusSecond').innerHTML = value + "ph"
+    }
+    function formSubmit() {
+      let timeRelax = document.getElementById("timeRelax").value
+      let wrongTime = document.getElementById("wrongTime").value
+      let bonusSecond = document.getElementById("bonusSecond").value
+      let mucDo = document.getElementById("mucDo").value
+      console.log('timeRelax :>> ', timeRelax);
+    }
+    // End Edit --Thương
       var chartData = {
         labels: ["S", "M", "T", "W", "T", "F", "S"],
         datasets: [{
