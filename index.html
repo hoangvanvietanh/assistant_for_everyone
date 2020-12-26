@@ -13,6 +13,9 @@
     <script src="./js/faceDetectionControls.js"></script>
     <link rel="stylesheet" href="./css/styles.css">
     <link rel="stylesheet" href="./css/materialize.css">
+
+    <link rel="stylesheet" href="./css/displaytime.css">
+
     <script type="text/javascript" src="./js/jquery-2.1.1.min.js"></script>
     <script src="./js/materialize.min.js"></script>  
     <script src="./js/chart.min.js"></script>  
@@ -54,9 +57,19 @@
                 </div>
                 <!--Kết thúc ở đây-->
 
+
                 <div class="row">
-                  <div class="col-sm-4">
-                    Thời gian ngồi
+                  <div class="col-sm-6">
+                    <label for="countDownId">Thời gian còn lại:</label>
+                    <div id="countDownId"></div>
+                    
+                   
+                  </div>
+                  <div class="col-sm-6">
+                    <label for="shitDownId">Thời gian ngồi:</label>
+
+                    <div id="shitDownId"></div>
+                    
                   </div>
                   <div class="col-sm-8">
                     <strong><p id="time"></p></strong>
@@ -88,6 +101,7 @@
     <!-- <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script> -->
     <script src="./js/popper.min.js"></script>
     <script src="./js/bootstrap.min.js"></script>
+    <script src="./js/timer.js"></script>
     <script>
       var chartData = {
         labels: ["S", "M", "T", "W", "T", "F", "S"],
@@ -152,6 +166,10 @@
         let positionMove = 0
         let withBoxes = true
         let isShowWebcam = false
+        var milisec;
+        milisec = miliseconds(0, 2, 0);
+        console.log('milisec: ' + milisec)
+        var countTimeDown = milisec;
     
         function showWebcam() {
           isShowWebcam = !isShowWebcam
@@ -206,13 +224,17 @@
             const canvas = $('#overlay').get(0)
             const dims = faceapi.matchDimensions(canvas, videoEl, true)
             const resizedResult = faceapi.resizeResults(result, dims)
-    //console.log(result.detection.box.x +':', result.detection.box.y)
+          //console.log(result.detection.box.x +':', result.detection.box.y)
             let x = result.detection.box.x;
             let y = result.detection.box.y;
             positionMove = y;
             countTime++
+            countTimeDown--
             if(countTime == 500) {
                 notifyMe('Nghỉ ngơi tí thôi')
+            }
+            if(countTimeDown == 0) {
+              notifyMe('Nghỉ ngơi tí thôi')
             }
             if(positionFirst !== 0) {
               if(y > positionFirst )
@@ -284,9 +306,40 @@
       // At last, if the user has denied notifications, and you
       // want to be respectful there is no need to bother them any more.
     }
+    
     function render() {
         time.innerHTML = countTime/1000; 
-      }
-      </script>
+        document.getElementById("baseTimeLabel").innerHTML = formatTime(
+          countTimeDown
+        );
+        setCircleDasharray();
+        setRemainingPathColor(countTimeDown);
+    
+        if (countTimeDown === 0) {
+          onTimesUp();
+        }
+
+        document.getElementById("baseTimeLabel1").innerHTML = formatTime(
+          countTime/1000
+        );
+        setCircleDasharray();
+        setRemainingPathColor(countTime/1000);
+    
+        if (countTime/1000 === 0) {
+          onTimesUp();
+        }
+        console.log('----------------------');
+    }
+    
+    displayTimeShiwDown("shitDownId", "baseTimerPathRemaining" ,"baseTimeLabel1", countTime);
+    displayTimeShiwDown("countDownId", "baseTimerPathRemaining", "baseTimeLabel", countTimeDown);
+
+    
+    function miliseconds(hrs, min, sec)
+    {
+        return(((hrs * 60 * 60) + (min * 60) + sec));
+    }
+    //startTimer(milisec/1000);
+    </script>
 </body>
 </html>
